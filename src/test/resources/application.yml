@@ -1,0 +1,40 @@
+spring:
+  config:
+    activate:
+      on-profile: "tests"
+  main:
+    banner-mode: "off"
+---
+spring:
+  config:
+    activate:
+      on-profile: "tests"
+  datasource:
+    url: jdbc:h2:mem:birthday
+    username: test
+    password: unittests
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.h2.Driver
+        jdbc:
+          time_zone: UTC
+---
+spring:
+  config:
+    activate:
+      on-profile: "mysql"
+  datasource:
+    url: jdbc:mysql://localhost:3306/birthday
+    username: test_user
+    password: integrationtests
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        jdbc:
+          time_zone: UTC
