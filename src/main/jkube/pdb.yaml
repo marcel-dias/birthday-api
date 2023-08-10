@@ -1,0 +1,14 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  labels:
+    app: birthday-api
+    group: com.marceldias
+  name: birthday-api
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: birthday-api
+      group: com.marceldias
