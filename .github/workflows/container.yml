@@ -22,6 +22,8 @@ permissions:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    outputs:
+      imageTag: ${{ steps.meta.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -37,9 +39,6 @@ jobs:
   
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-        
-      - name: Gradle build
-        run: ./gradlew build --no-daemon -x test
   
       - name: Log in to the Container registry
         if: github.event_name != 'pull_request'
@@ -63,6 +62,9 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
       
+      - name: Gradle build
+        run: ./gradlew build --no-daemon -x test -P version=${{ steps.meta.outputs.version }}
+
       - name: Build and push
         id: push
         uses: docker/build-push-action@v4
@@ -77,8 +79,6 @@ jobs:
         run: |
           echo "imagetag=${{ steps.meta.outputs.version }}"
           echo "imagetag=${{ steps.meta.outputs.version }}" >> "$GITHUB_OUTPUT"
-          echo "imageid=${{ steps.push.outputs.imageid }}"
-          echo "imageid=${{ steps.push.outputs.imageid }}" >> "$GITHUB_OUTPUT"
 
   container-tests:
     runs-on: ubuntu-latest
@@ -109,12 +109,12 @@ jobs:
 
       - name: Echo image tag
         run: |
-          echo ${{ needs.build-and-push-image.outputs.imagetag }}
+          echo ${{ needs.build-and-push-image.outputs.imageTag }}
 
       - uses: addnab/docker-run-action@v3
         with:
           registry: gcr.io
-          image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push-image.outputs.imagetag }}"
+          image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push-image.outputs.imageTag }}"
           options: -e DATABASE_HOST=mysql -e DATABASE_USER=birthdayuser -e DATABASE_PASS=birthdaypass
           run: |
             echo "Running Script"
