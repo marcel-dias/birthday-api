@@ -75,10 +75,10 @@ jobs:
       - name: Output Image Tags
         id: image-tags
         run: |
-          echo "image_tag=${{ steps.meta.outputs.version }}"
-          echo "image_tag=${{ steps.meta.outputs.version }}" >> "$GITHUB_OUTPUT"
-          echo "image_id=${{ steps.push.outputs.imageid }}"
-          echo "image_id=${{ steps.push.outputs.imageid }}" >> "$GITHUB_OUTPUT"
+          echo "imagetag=${{ steps.meta.outputs.version }}"
+          echo "imagetag=${{ steps.meta.outputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "imageid=${{ steps.push.outputs.imageid }}"
+          echo "imageid=${{ steps.push.outputs.imageid }}" >> "$GITHUB_OUTPUT"
 
   container-tests:
     runs-on: ubuntu-latest
@@ -108,12 +108,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Echo image tag
-        run: echo ${{ needs.build-and-push-image.outputs.image_tag }}
+        run: |
+          echo ${{ needs.build-and-push-image.outputs.imagetag }}
 
       - uses: addnab/docker-run-action@v3
         with:
           registry: gcr.io
-          image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push-image.outputs.image_tag }}"
+          image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push-image.outputs.imagetag }}"
           options: -e DATABASE_HOST=mysql -e DATABASE_USER=birthdayuser -e DATABASE_PASS=birthdaypass
           run: |
             echo "Running Script"
