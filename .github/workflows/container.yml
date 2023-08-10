@@ -21,8 +21,6 @@ permissions:
 
 jobs:
   build-and-push-image:
-    permissions:
-      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,6 +64,13 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Output Image Tags
+        id: image-tags
+        run: |
+          echo "image_tag=${{ steps.meta.outputs.tags[0] }}"
+          echo "image_tag=${{ steps.meta.outputs.tags[0] }}" >> "$GITHUB_OUTPUT"
