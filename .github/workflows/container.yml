@@ -79,3 +79,42 @@ jobs:
           echo "image_tag=${{ steps.meta.outputs.version }}" >> "$GITHUB_OUTPUT"
           echo "image_id=${{ steps.push.outputs.imageid }}"
           echo "image_id=${{ steps.push.outputs.imageid }}" >> "$GITHUB_OUTPUT"
+
+  container-tests:
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+    services:
+      mysql:
+        image: mysql:8.0.20
+        env:
+          MYSQL_DATABASE: birthday
+          MYSQL_USER: birthdayuser
+          MYSQL_PASSWORD: birthdaypass
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Echo image tag
+        run: echo ${{ needs.build-and-push-image.outputs.image_tag }}
+
+      - uses: addnab/docker-run-action@v3
+        with:
+          registry: gcr.io
+          image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push-image.outputs.image_tag }}"
+          options: -e DATABASE_HOST=mysql -e DATABASE_USER=birthdayuser -e DATABASE_PASS=birthdaypass
+          run: |
+            echo "Running Script"
+            curl -i -X PUT --url http://localhost:8080/hello/testuser --header 'content-type: application/json' --data "{\"dateOfBirth\":\"1990-09-09\"}" 
+            curl -i --url http://localhost:8080/hello/testuser
