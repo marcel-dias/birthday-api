@@ -13,9 +13,9 @@ import java.util.Objects;
 @Service
 public class HelloService {
 
-    private static final String futureBirthdayMessage = "Hello, %s! Your birthday is in %d day(s)";
-    private static final String pastBirthdayMessage = "Hello, %s! Your birthday was %d day(s) ago";
-    private static final String todaysBirthdayMessage = "Hello, %s! Happy birthday!";
+    public static final String FUTURE_BIRTHDAY_MESSAGE = "Hello, %s! Your birthday is in %d day(s)";
+    public static final String PAST_BIRTHDAY_MESSAGE = "Hello, %s! Your birthday was %d day(s) ago";
+    public static final String TODAYS_BIRTHDAY_MESSAGE = "Hello, %s! Happy birthday!";
 
     @Autowired
     private UserRepository userRepository;
@@ -38,12 +38,12 @@ public class HelloService {
         LocalDate today = LocalDate.now();
         final LocalDate birthday = user.getDateOfBirth().withYear(today.getYear());
         if (birthday.isAfter(today)) {
-            return new HelloMessage(String.format(futureBirthdayMessage, user.getName(),
+            return new HelloMessage(String.format(FUTURE_BIRTHDAY_MESSAGE, user.getName(),
                     ChronoUnit.DAYS.between(today, birthday)));
         } else if (birthday.isBefore(today)) {
-            return new HelloMessage(String.format(pastBirthdayMessage, user.getName(),
+            return new HelloMessage(String.format(PAST_BIRTHDAY_MESSAGE, user.getName(),
                     ChronoUnit.DAYS.between(birthday, today)));
         }
-        return new HelloMessage(String.format(todaysBirthdayMessage, user.getName()));
+        return new HelloMessage(String.format(TODAYS_BIRTHDAY_MESSAGE, user.getName()));
     }
 }

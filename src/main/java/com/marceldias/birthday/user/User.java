@@ -17,8 +17,6 @@ public class User {
 
     public User() {};
     public User(String name, LocalDate dateOfBirth) {
-//        Objects.requireNonNull(name);
-//        Objects.requireNonNull(dateOfBirth);
         this.name = name;
         this.dateOfBirth = dateOfBirth;
     }
