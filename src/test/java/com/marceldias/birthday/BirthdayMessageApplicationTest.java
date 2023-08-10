@@ -1,5 +1,6 @@
 package com.marceldias.birthday;
 
+import com.marceldias.birthday.hello.HelloService;
 import com.marceldias.birthday.user.User;
 import com.marceldias.birthday.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -73,18 +74,43 @@ public class BirthdayMessageApplicationTest {
     @Test
     void shouldGetBirthdayMessage() {
         String username = "barcelona";
-        LocalDate birthday = LocalDate.now().minusYears(30).plusDays(15);
+        LocalDate birthday = LocalDate.now().minusYears(30);
         User barcelona = new User(username, birthday);
 
         userRepository.insert(barcelona);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        String message = restTemplate.getForObject(baseUrl + "/" + barcelona.getName(), String.class);
+        assertThat(message, containsString(username));
+        assertThat(message, containsString(String.format(HelloService.TODAYS_BIRTHDAY_MESSAGE, username)));
+    }
 
-        HttpEntity<String> body = new HttpEntity<>("{\"dateOfBirth\": \"" + barcelona.getDateOfBirth() + "\"}",
-                headers);
+    @Test
+    void shouldGetBirthdayFutureMessage() {
+        String username = "futureUser";
+        Long days = 20L;
+        LocalDate birthday = LocalDate.now().minusYears(30).plusDays(days);
+        User barcelona = new User(username, birthday);
+
+        userRepository.insert(barcelona);
 
         String message = restTemplate.getForObject(baseUrl + "/" + barcelona.getName(), String.class);
         assertThat(message, containsString(username));
+        assertThat(message, containsString(String.format(HelloService.FUTURE_BIRTHDAY_MESSAGE, username, days)));
     }
+
+    @Test
+    void shouldGetBirthdayCelebratedMessage() {
+        String username = "celebrated";
+        Long days = 15L;
+        LocalDate birthday = LocalDate.now().minusYears(30).minusDays(days);
+        User barcelona = new User(username, birthday);
+
+        userRepository.insert(barcelona);
+
+        String message = restTemplate.getForObject(baseUrl + "/" + barcelona.getName(), String.class);
+        assertThat(message, containsString(username));
+        assertThat(message, containsString(String.format(HelloService.PAST_BIRTHDAY_MESSAGE, username, days)));
+    }
+
+
 }

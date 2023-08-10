@@ -39,8 +39,18 @@ class HelloControllerTests {
 
         User celebrated = new User("celebrated", LocalDate.now().minusDays(15).minusYears(10));
         Mockito.when(userRepository.findByName(celebrated.getName())).thenReturn(celebrated);
+
+        User happyperson = new User("happyperson", LocalDate.now().minusYears(15));
+        Mockito.when(userRepository.findByName(happyperson.getName())).thenReturn(happyperson);
     }
 
+    @Test
+    void testGetBirthdayMessage() throws Exception {
+        String username = "happyperson";
+        this.mockMvc.perform(get("/hello/" + username))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"message\":\"Hello, " + username + "! Happy birthday!\"}"));
+    }
     @Test
     void testGetBirthdayMessageExistingUsername() throws Exception {
         String username = "alex";
