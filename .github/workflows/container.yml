@@ -117,5 +117,5 @@ jobs:
           options: -e DATABASE_HOST=mysql -e DATABASE_USER=birthdayuser -e DATABASE_PASS=birthdaypass
           run: |
             echo "Running Script"
-            curl -i -X PUT --url http://localhost:8080/hello/testuser --header 'content-type: application/json' --data "{\"dateOfBirth\":\"1990-09-09\"}" 
-            curl -i --url http://localhost:8080/hello/testuser
+            curl -i -X PUT --url http://127.0.0.1:8080/hello/testuser --header 'content-type: application/json' --data "{\"dateOfBirth\":\"1990-09-09\"}" 
+            curl -i --url http://127.0.0.1:8080/hello/testuser
