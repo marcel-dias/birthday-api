@@ -12,3 +12,21 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         jdbc:
           time_zone: UTC
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "local"
+  datasource:
+    url: jdbc:h2:mem:birthday
+    username: local
+    password: localpass
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.h2.Driver
+        jdbc:
+          time_zone: UTC

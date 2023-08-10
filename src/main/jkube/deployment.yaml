@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: birthday-api
+    group: com.marceldias
+  name: birthday-api
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: birthday-api
+      group: com.marceldias
+  template:
+    metadata:
+      annotations:
+        jkube.eclipse.org/git-url: git@github.com:marcel-dias/birthday-api.git
+        jkube.eclipse.org/git-branch: main
+      labels:
+        app: birthday-api
+        group: com.marceldias
+      name: birthday-api
+    spec:
+      containers:
+        - name: marceldias-birthday-api
+          image: ghcr.io/marcel-dias/birthday-api:0.0.2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: false
+          envFrom:
+            - secretRef:
+                name: birthday-secrets
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "1"
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 256Mi

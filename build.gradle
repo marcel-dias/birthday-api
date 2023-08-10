@@ -2,10 +2,11 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.2'
 	id 'io.spring.dependency-management' version '1.1.2'
+	id 'org.eclipse.jkube.kubernetes' version '1.13.1'
 }
 
 group = 'com.marceldias'
-version = '0.0.1-SNAPSHOT'
+version = project.hasProperty('version') ? version : '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = JavaVersion.toVersion("17")
@@ -24,7 +25,7 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core:9.21.0'
 	implementation 'org.flywaydb:flyway-mysql:9.21.0'
 	runtimeOnly 'com.mysql:mysql-connector-j'
-	testImplementation 'com.h2database:h2'
+	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:junit-jupiter'

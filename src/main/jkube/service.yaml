@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: birthday-api
+  labels:
+    app: birthday-api
+    group: com.marceldias
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: birthday-api
+    group: com.marceldias

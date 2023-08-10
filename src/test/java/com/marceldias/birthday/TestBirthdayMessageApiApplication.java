@@ -18,7 +18,7 @@ public class TestBirthdayMessageApiApplication {
 	@Bean
 	@ServiceConnection
 	MySQLContainer<?> mysqlContainer() {
-		return new MySQLContainer<>(DockerImageName.parse("mysql:8.0.20"));
+		return new MySQLContainer<>(DockerImageName.parse("mysql:8.0.20")).withDatabaseName("birthday");
 	}
 
 	public static void main(String[] args) {
