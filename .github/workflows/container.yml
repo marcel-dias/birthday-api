@@ -75,7 +75,7 @@ jobs:
       - name: Output Image Tags
         id: image-tags
         run: |
-          echo "image_tag=${{ steps.meta.outputs.tags }}"
-          echo "image_tag=${{ steps.meta.outputs.tags }}" >> "$GITHUB_OUTPUT"
+          echo "image_tag=${{ steps.meta.outputs.version }}"
+          echo "image_tag=${{ steps.meta.outputs.version }}" >> "$GITHUB_OUTPUT"
           echo "image_id=${{ steps.push.outputs.imageid }}"
           echo "image_id=${{ steps.push.outputs.imageid }}" >> "$GITHUB_OUTPUT"
