@@ -8,6 +8,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
+/**
+ * Class used to locally execute the application using Mysql DB in testContainers
+ */
 @TestConfiguration(proxyBeanMethods = false)
 @ActiveProfiles("mysql")
 public class TestBirthdayMessageApiApplication {

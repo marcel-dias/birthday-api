@@ -10,6 +10,9 @@ import java.util.Objects;
 
 @Table("users")
 public class User {
+
+    public static final String INVALID_USERNAME_MESSAGE = "Username must contain only letters";
+    public static final String INVALID_BIRTHDAY_MESSAGE = "%s must be a date before the today date";
     @Id
     private String name;
     @Column("date_of_birth")
@@ -44,13 +47,13 @@ public class User {
 
     public void isNameOnlyLetter() {
         if (! name.matches("^[a-zA-Z]+\\.?")) {
-            throw new NotValidException("Username must contain only letters");
+            throw new NotValidException(INVALID_USERNAME_MESSAGE);
         }
     }
 
     public void isDateOfBirthBeforeThanToday() {
         if (dateOfBirth.isAfter(LocalDate.now().minusDays(1))) {
-            throw new NotValidException(dateOfBirth+" must be a date before the today date");
+            throw new NotValidException(String.format(INVALID_BIRTHDAY_MESSAGE, dateOfBirth));
         }
     }
 
