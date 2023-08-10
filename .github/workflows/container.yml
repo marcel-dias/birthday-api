@@ -41,7 +41,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         
       - name: Gradle build
-        run: ./gradlew build --no-daemon -x tests
+        run: ./gradlew build --no-daemon -x test
   
       - name: Log in to the Container registry
         if: github.event_name != 'pull_request'
