@@ -22,6 +22,8 @@ permissions:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    outputs:
+      imageTag: ${{ steps.meta.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -37,12 +39,8 @@ jobs:
   
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-        
-      - name: Gradle build
-        run: ./gradlew build --no-daemon -x test
   
       - name: Log in to the Container registry
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
@@ -63,19 +61,61 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
       
+      - name: Gradle build
+        run: ./gradlew build --no-daemon -x test -P version=${{ steps.meta.outputs.version }}
+
       - name: Build and push
         id: push
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Output Image Tags
         id: image-tags
         run: |
-          echo "image_tag=${{ steps.meta.outputs.version }}"
-          echo "image_tag=${{ steps.meta.outputs.version }}" >> "$GITHUB_OUTPUT"
-          echo "image_id=${{ steps.push.outputs.imageid }}"
-          echo "image_id=${{ steps.push.outputs.imageid }}" >> "$GITHUB_OUTPUT"
+          echo "imagetag=${{ steps.meta.outputs.version }}"
+          echo "imagetag=${{ steps.meta.outputs.version }}" >> "$GITHUB_OUTPUT"
+
+  container-tests:
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+    services:
+      mysql:
+        image: mysql:8.0.20
+        env:
+          MYSQL_DATABASE: birthday
+          MYSQL_USER: birthdayuser
+          MYSQL_PASSWORD: birthdaypass
+          MYSQL_ROOT_PASSWORD: birthdayrootpass
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Echo image tag
+        run: |
+          echo ${{ needs.build-and-push-image.outputs.imageTag }}
+
+      - uses: addnab/docker-run-action@v3
+        with:
+          registry: gcr.io
+          image: "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push-image.outputs.imageTag }}"
+          options: -e DATABASE_HOST=mysql -e DATABASE_USER=birthdayuser -e DATABASE_PASS=birthdaypass
+          run: |
+            echo "Running Script"
+            curl -i -X PUT --url http://127.0.0.1:8080/hello/testuser --header 'content-type: application/json' --data "{\"dateOfBirth\":\"1990-09-09\"}" 
+            curl -i --url http://127.0.0.1:8080/hello/testuser
